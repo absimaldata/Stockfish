@@ -333,15 +333,12 @@ namespace {
                     score += popcount<Max15>(alignedPawns) * RookOnPawn;
             }
 
-            
+            if (popcount<Max15>(pos.pieces(Us, ROOK) & file_bb(file_of(s))) == 2)
+				if(ei.attackedBy[Us][ROOK] & ei.kingRing[Them])
+					score+= Drook;
             // Bonus when on an open or semi-open file
-            if (ei.pi->semiopen_file(Us, file_of(s)))
-			{
-                score += ei.pi->semiopen_file(Them, file_of(s)) ? RookOnOpenFile : RookOnSemiOpenFile;
-				if (popcount<Max15>(pos.pieces(Us, ROOK) & file_bb(file_of(s))) == 2)
-				    if(ei.attackedBy[Us][ROOK] & ei.kingRing[Them])
-					    score+= Drook;
-			}
+            if (ei.pi->semiopen_file(Us, file_of(s)))			
+                score += ei.pi->semiopen_file(Them, file_of(s)) ? RookOnOpenFile : RookOnSemiOpenFile;			
 
             // Penalize when trapped by the king, even more if king cannot castle
             if (mob <= 3 && !ei.pi->semiopen_file(Us, file_of(s)))
