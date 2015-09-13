@@ -184,7 +184,7 @@ namespace {
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
-  const Score Drook              = S(37, 15);
+  const Score Drook              = S(22, 5);
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
   // happen in Chess960 games.
@@ -333,12 +333,15 @@ namespace {
                     score += popcount<Max15>(alignedPawns) * RookOnPawn;
             }
 
-            if (popcount<Max15>(pos.pieces(Us, ROOK) & file_bb(file_of(s))) == 2)            
-                score+= Drook;
             
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
+			{
                 score += ei.pi->semiopen_file(Them, file_of(s)) ? RookOnOpenFile : RookOnSemiOpenFile;
+				if (popcount<Max15>(pos.pieces(Us, ROOK) & file_bb(file_of(s))) == 2)
+				    if(ei.attackedBy[Us][ROOK] & ei.kingRing[Them])
+					    score+= Drook;
+			}
 
             // Penalize when trapped by the king, even more if king cannot castle
             if (mob <= 3 && !ei.pi->semiopen_file(Us, file_of(s)))
