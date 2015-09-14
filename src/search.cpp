@@ -672,7 +672,7 @@ namespace {
 
     // Step 6. Razoring (skipped when in check)
     if (   !PvNode
-        &&  depth < 5 * ONE_PLY
+        &&  depth < 4 * ONE_PLY
         &&  eval + razor_margin(depth) <= alpha
         &&  ttMove == MOVE_NONE)
     {
@@ -680,10 +680,10 @@ namespace {
             && eval + razor_margin(3 * ONE_PLY) <= alpha)
             return qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO);
 
-        Value ralpha = alpha - razor_margin(depth);
+        Value ralpha = alpha - 2*razor_margin(depth)/3;
         Value v = qsearch<NonPV, false>(pos, ss, ralpha, ralpha+1, DEPTH_ZERO);
         if (v <= ralpha)
-            return v;
+            return v + 2*razor_margin(depth)/3;
     }
 
     // Step 7. Futility pruning: child node (skipped when in check)
