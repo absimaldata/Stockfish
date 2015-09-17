@@ -66,6 +66,7 @@ namespace {
   enum NodeType { Root, PV, NonPV };
 
   // Razoring and futility margin based on depth
+  Value razor_margin[4] = {Value(522), Value(566), Value(588), Value(602)}; 
   Value futility_margin(Depth d) { return Value(200 * d); }
 
   // Futility and reductions lookup tables, initialized at startup
