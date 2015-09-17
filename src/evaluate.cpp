@@ -294,6 +294,8 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+          if((pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) > 3998))
+          {
             // Bonus for outpost square
             if (   relative_rank(Us, s) >= RANK_4
                 && !(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
@@ -307,7 +309,7 @@ namespace {
             // Penalty for pawns on same color square of bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
+          }
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
             // when that pawn is also blocked.
