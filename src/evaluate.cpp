@@ -163,6 +163,9 @@ namespace {
     S(0, 0), S(0, 0), S(107, 138), S(84, 122), S(114, 203), S(121, 217)
   };
 
+  //PinnedPieces Penalty according to piece type. pawn, knight/bishop, Rook and Queen
+  const Score PinPenalty[] = {S(0,0), S(40, 40), S(40, 40), S(40, 40), S(65, 65), S(85, 85)};
+  
   // Passed[mg/eg][rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
   const Value Passed[][RANK_NB] = {
@@ -486,7 +489,13 @@ namespace {
 
     Bitboard b, weak, defended, safeThreats;
     Score score = SCORE_ZERO;
-
+	
+    //Pinned Piece penalty
+    b = ei.pinnedPieces[Them];
+	
+    while(b)
+        score += PinPenalty[type_of(pos.piece_on(pop_lsb(&b)))];
+	
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
 
