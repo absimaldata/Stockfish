@@ -162,9 +162,6 @@ namespace {
   const Score ThreatenedByPawn[PIECE_TYPE_NB] = {
     S(0, 0), S(0, 0), S(107, 138), S(84, 122), S(114, 203), S(121, 217)
   };
-
-  //PinnedPieces Penalty according to piece type. pawn, knight/bishop, Rook and Queen
-  const Score PinPenalty[] = {S(0,0), S(40, 40), S(40, 40), S(40, 40), S(65, 65), S(85, 85)};
   
   // Passed[mg/eg][rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
@@ -187,6 +184,7 @@ namespace {
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
+  const Score PinPenalty         = S(12, 15);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -264,7 +262,6 @@ namespace {
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
-
     while ((s = *pl++) != SQ_NONE)
     {
         // Find attacked squares, including x-ray attacks for bishops and rooks
@@ -490,11 +487,9 @@ namespace {
     Bitboard b, weak, defended, safeThreats;
     Score score = SCORE_ZERO;
 	
-    //Pinned Piece penalty
-    b = ei.pinnedPieces[Them];
-	
-    while(b)
-        score += PinPenalty[type_of(pos.piece_on(pop_lsb(&b)))];
+	//Pinned piece penalty
+	if(ei.pinnedPieces[Them])
+		score += popcount<Max15>(ei.pinnedPieces[Them]) * PinPenalty;
 	
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
