@@ -370,8 +370,9 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe;
-    int attackUnits;
+    Bitboard undefended, b, b1, b2, safe, adjacentPawnMask;
+    Square frontPawn;
+    int attackUnits, defendercount;
     const Square ksq = pos.square<KING>(Us);
 
     // King shelter and enemy pawns storm
@@ -459,8 +460,17 @@ namespace {
         // Finally, extract the king danger score from the KingDanger[]
         // array and subtract the score from evaluation.
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
+        
+        //Prefer Pieces behind the shelter when pushing forward
+        adjacentPawnMask = AdjacentFilesBB[file_of(ksq)] & pos.pieces(Them, PAWN);
+        frontPawn = frontmost_sq(Them, adjacentPawnMask);
+        backwardBB = ~forward_bb(Them, frontPawn) & ~adjacentPawnMask;
+        defendercount = popcount<Max15>(backwardBB & pos.pieces(Them) 
+                                                   & ~pos.pieces(Them, PAWN)
+                                                   & ~pos.pieces(Them, KING));
+        score -= make_score(int(defendercount * 10), int(defendercount * 4));
     }
-
+    
     if (DoTrace)
         Trace::add(KING, Us, score);
 
