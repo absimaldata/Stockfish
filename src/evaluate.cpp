@@ -370,7 +370,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe, adjacentPawnMask;
+    Bitboard undefended, b, b1, b2, safe, adjacentPawnMask, backwardBB;
     Square frontPawn;
     int attackUnits, defendercount;
     const Square ksq = pos.square<KING>(Us);
