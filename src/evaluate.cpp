@@ -109,13 +109,15 @@ namespace {
   // Evaluation weights, indexed by the corresponding evaluation term
   enum { Mobility, PawnStructure, PassedPawns, Space, KingSafety };
 
-  const struct Weight { int mg, eg; } Weights[] = {
+  int Weights[5][2] = {
     {289, 344}, {233, 201}, {221, 273}, {46, 0}, {322, 0}
   };
 
-  Score operator*(Score s, const Weight& w) {
+  TUNE(Weights);
+  
+ /* Score operator*(Score s, const Weight& w) {
     return make_score(mg_value(s) * w.mg / 256, eg_value(s) * w.eg / 256);
-  }
+  }*/
 
 
   #define V(v) Value(v)
@@ -648,10 +650,10 @@ namespace {
     }
 
     if (DoTrace)
-        Trace::add(PASSED, Us, score * Weights[PassedPawns]);
+        Trace::add(PASSED, Us, make_score(mg_value(score) * Weights[2][0] / 256, eg_value(score) * Weights[2][1] / 256));
 
     // Add the scores to the middlegame and endgame eval
-    return score * Weights[PassedPawns];
+    return make_score(mg_value(score) * Weights[2][0] / 256, eg_value(score) * Weights[2][1] / 256);
   }
 
 
@@ -740,8 +742,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Probe the pawn hash table
   ei.pi = Pawns::probe(pos);
-  score += ei.pi->pawns_score() * Weights[PawnStructure];
-
+  score += make_score(mg_value(ei.pi->pawns_score()) * Weights[1][0] / 256, eg_value(ei.pi->pawns_score()) * Weights[1][1] / 256);
   // Initialize attack and king safety bitboards
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
   init_eval_info<WHITE>(pos, ei);
@@ -762,8 +763,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate pieces and mobility
   score += evaluate_pieces<KNIGHT, WHITE, DoTrace>(pos, ei, mobility, mobilityArea);
-  score += (mobility[WHITE] - mobility[BLACK]) * Weights[Mobility];
-
+  score += 	make_score(mg_value((mobility[WHITE] - mobility[BLACK])) * Weights[0][0] / 256, eg_value((mobility[WHITE] - mobility[BLACK])) * Weights[0][1] / 256);
   // Evaluate kings after all other pieces because we need complete attack
   // information when computing the king safety evaluation.
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
@@ -790,8 +790,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate space for both sides, only during opening
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
-      score += (evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) * Weights[Space];
-
+      score += make_score(mg_value((evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) ) * Weights[3][0] / 256, eg_value((evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) ) * Weights[3][1] / 256);
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
 
@@ -837,10 +836,11 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(MATERIAL, pos.psq_score());
       Trace::add(IMBALANCE, me->imbalance());
       Trace::add(PAWN, ei.pi->pawns_score());
-      Trace::add(MOBILITY, mobility[WHITE] * Weights[Mobility]
-                         , mobility[BLACK] * Weights[Mobility]);
+      Trace::add(MOBILITY, make_score(mg_value(mobility[WHITE]) * Weights[0][0] / 256, eg_value(mobility[WHITE]) * Weights[0][1] / 256)
+                         , make_score(mg_value(mobility[BLACK]) * Weights[0][0] / 256, eg_value(mobility[BLACK]) * Weights[0][1] / 256));
       Trace::add(SPACE, evaluate_space<WHITE>(pos, ei) * Weights[Space]
-                      , evaluate_space<BLACK>(pos, ei) * Weights[Space]);
+						make_score(mg_value((evaluate_space<WHITE>(pos, ei))) * Weights[3][0] / 256, eg_value((evaluate_space<WHITE>(pos, ei))) * Weights[3][1] / 256)
+                      , make_score(mg_value((evaluate_space<BLACK>(pos, ei))) * Weights[3][0] / 256, eg_value((evaluate_space<BLACK>(pos, ei))) * Weights[3][1] / 256);
       Trace::add(TOTAL, score);
   }
 
@@ -900,6 +900,7 @@ void Eval::init() {
   for (int i = 0; i < 400; ++i)
   {
       t = std::min(Peak, std::min(i * i * 27, t + MaxSlope));
-      KingDanger[i] = make_score(t / 1000, 0) * Weights[KingSafety];
+      KingDanger[i] = make_score(mg_value(make_score(t / 1000, 0)) * Weights[4][0] / 256, eg_value(make_score(t / 1000, 0)) * Weights[4][1] / 256);
+	  
   }
 }
