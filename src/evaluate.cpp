@@ -115,9 +115,9 @@ namespace {
 
   TUNE(Weights);
   
- /* Score operator*(Score s, const Weight& w) {
-    return make_score(mg_value(s) * w.mg / 256, eg_value(s) * w.eg / 256);
-  }*/
+  //Score operator*(Score s, const Weight& w) {
+ //  return make_score(mg_value(s) * w.mg / 256, eg_value(s) * w.eg / 256);
+  //}/
 
 
   #define V(v) Value(v)
@@ -790,7 +790,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate space for both sides, only during opening
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
-      score += make_score(mg_value((evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) ) * Weights[3][0] / 256, eg_value((evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) ) * Weights[3][1] / 256);
+      score += make_score(mg_value((evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei))) * Weights[3][0] / 256, eg_value((evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei))) * Weights[3][1] / 256);
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
 
@@ -838,9 +838,8 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(PAWN, ei.pi->pawns_score());
       Trace::add(MOBILITY, make_score(mg_value(mobility[WHITE]) * Weights[0][0] / 256, eg_value(mobility[WHITE]) * Weights[0][1] / 256)
                          , make_score(mg_value(mobility[BLACK]) * Weights[0][0] / 256, eg_value(mobility[BLACK]) * Weights[0][1] / 256));
-      Trace::add(SPACE, evaluate_space<WHITE>(pos, ei) * Weights[Space]
-						make_score(mg_value((evaluate_space<WHITE>(pos, ei))) * Weights[3][0] / 256, eg_value((evaluate_space<WHITE>(pos, ei))) * Weights[3][1] / 256)
-                      , make_score(mg_value((evaluate_space<BLACK>(pos, ei))) * Weights[3][0] / 256, eg_value((evaluate_space<BLACK>(pos, ei))) * Weights[3][1] / 256);
+      Trace::add(SPACE, make_score(mg_value(evaluate_space<WHITE>(pos, ei)) * Weights[3][0] / 256, eg_value(evaluate_space<WHITE>(pos, ei)) * Weights[3][1] / 256)
+                      , make_score(mg_value(evaluate_space<BLACK>(pos, ei)) * Weights[3][0] / 256, eg_value(evaluate_space<BLACK>(pos, ei)) * Weights[3][1] / 256));
       Trace::add(TOTAL, score);
   }
 
