@@ -107,10 +107,10 @@ namespace {
 
 
   // Evaluation weights, indexed by the corresponding evaluation term
-  enum { Mobility, PawnStructure, PassedPawns, Space, KingSafety };
+  enum { Mobility, PawnStructure, PassedPawns, Space, KingSafety, Threats };
 
-  int Weights[5][2] = {
-    {289, 344}, {233, 201}, {221, 273}, {46, 0}, {322, 0}
+  int Weights[6][2] = {
+    {289, 344}, {233, 201}, {221, 273}, {46, 0}, {322, 0}, {350, 256}
   };
 
   TUNE(Weights);
@@ -568,9 +568,9 @@ namespace {
         score += popcount<Max15>(b) * PawnAttackThreat;
 
     if (DoTrace)
-        Trace::add(THREAT, Us, score);
+        Trace::add(THREAT, Us, make_score(mg_value(score) * Weights[5][0] / 256, eg_value(score) * Weights[5][1] / 256));
 
-    return score;
+    return make_score(mg_value(score) * Weights[5][0] / 256, eg_value(score) * Weights[5][1] / 256);
   }
 
 
