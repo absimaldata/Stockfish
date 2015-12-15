@@ -173,11 +173,12 @@ namespace {
 
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
-  const Value Passed[][RANK_NB] = {
+  Value Passed[][RANK_NB] = {
     { V(0), V( 1), V(34), V(90), V(214), V(328) },
     { V(7), V(14), V(37), V(63), V(134), V(189) }
   };
 
+TUNE(Passed);
   // PassedFile[File] contains a bonus according to the file of a passed pawn.
   const Score PassedFile[] = {
     S( 12,  10), S( 3, 10), S( 1, -8), S(-27, -12),
