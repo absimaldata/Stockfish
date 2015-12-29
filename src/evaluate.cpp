@@ -319,8 +319,12 @@ namespace {
 
             // Penalty for pawns on same color square of bishop
             if (Pt == BISHOP)
+            {
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
+            //Bonus for enemy pawns on same coloured squares of bishop
+                score += BishopPawns * ei.pi->pawns_on_same_color_squares(Them, s);
+            }
+            
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
             // when that pawn is also blocked.
