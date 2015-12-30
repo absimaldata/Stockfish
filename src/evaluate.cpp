@@ -326,7 +326,7 @@ namespace {
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
                 
             // Bonus for unsupported and blocked pawns, which are on same coloured squares (after shifting, squares are complemented)
-                if(ei.pi->pawns_on_same_color_squares(Them, s))
+                if(pos.opposite_bishops() && ei.pi->pawns_on_same_color_squares(Them, s))
                 {
                   b = pos.pieces(Them, PAWN);
                   bb =  (shift_bb<Left>(b) | shift_bb<Right>(b)) & pos.pieces(Them, PAWN);
@@ -342,8 +342,8 @@ namespace {
                     b &= ~DarkSquares;
                   else
                     b &= DarkSquares;
-                    
-                  score += BishopPawnsThem * popcount<Max15>(b);
+                  if(b)   
+                    score += BishopPawnsThem * popcount<Max15>(b);
                 }
                   
             }
