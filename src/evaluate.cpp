@@ -198,7 +198,7 @@ namespace {
   const Score Hanging            = S(48, 28);
   const Score PawnAttackThreat   = S(31, 19);
   const Score Checked            = S(20, 20);
-  const Score BishopPawnThem     = S( 0, 30);
+  const Score BishopPawnThem     = S( 0, 15);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
