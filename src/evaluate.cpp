@@ -198,7 +198,8 @@ namespace {
   const Score Hanging            = S(48, 28);
   const Score PawnAttackThreat   = S(31, 19);
   const Score Checked            = S(20, 20);
-
+  const Score BishopPawnsThem    = S(10, 10);
+  
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
   // happen in Chess960 games.
@@ -266,7 +267,9 @@ namespace {
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
-
+    const Square Down 		= (Us == WHITE ? DELTA_S  : DELTA_N);
+    const Square Left       = (Us == WHITE ? DELTA_SW : DELTA_NE);
+    const Square Right      = (Us == WHITE ? DELTA_SE : DELTA_NW);
     ei.attackedBy[Us][Pt] = 0;
 
     while ((s = *pl++) != SQ_NONE)
@@ -319,8 +322,31 @@ namespace {
 
             // Penalty for pawns on same color square of bishop
             if (Pt == BISHOP)
+            {
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
+                
+            // Bonus for unsupported and blocked pawns, which are on same coloured squares (after shifting, squares are complemented)
+                if(ei.pi->pawns_on_same_color_squares(Them, s))
+                {
+                  b = pos.pieces(Them, PAWN);
+                  bb =  (shift_bb<Left>(b) | shift_bb<Right>(b)) & pos.pieces(Them, PAWN);
+                  b = shift_bb<Down>(b);					
+					        
+                  //Blocked by our pawns or their own double or more than 2 pawns	on same file
+                  b &=  (~pos.pieces() | pos.pieces(PAWN));
+                  
+                  //Exclude the supported pawns
+                  b &= ~bb;
+                  
+                  if((DarkSquares & s))
+                    b &= ~DarkSquares;
+                  else
+                    b &= DarkSquares;
+                    
+                  score += BishopPawnsThem * popcount<Max15>(b);
+                }
+                  
+            }
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
             // when that pawn is also blocked.
