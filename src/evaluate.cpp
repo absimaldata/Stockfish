@@ -392,7 +392,7 @@ namespace {
     Score score = ei.pi->king_safety<Us>(pos, ksq);
     
     // Penalty if our king is not behind his own pawns
-    if(!(pos.pieces(Us, PAWN) & ei.attackedBy[Us][KING]))
+    if(!(pos.pieces(Us) & ei.attackedBy[Us][KING]))
         score -= KingPenalty;
 
     // Main king safety evaluation
