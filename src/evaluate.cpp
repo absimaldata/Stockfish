@@ -200,8 +200,8 @@ namespace {
   const Score Checked            = S(20, 20);
   
   int M = 20, E = 20;
-  TUNE(SetRange(0, 40), M);
-  TUNE(SetRange(-40, 30), E);
+  TUNE(SetRange(  0, 50), M);
+  TUNE(SetRange(-50, 50), E);
   
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -395,7 +395,7 @@ namespace {
     Score score = ei.pi->king_safety<Us>(pos, ksq);
     
     // Penalty if our king is not behind his own pawns
-    if(!(pos.pieces(Us, PAWN) & ei.attackedBy[Us][KING]))
+    if(!(pos.pieces(Us) & ei.attackedBy[Us][KING]))
         score -= make_score(M, E);
         
     // Main king safety evaluation
