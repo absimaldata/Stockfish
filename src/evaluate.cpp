@@ -200,6 +200,12 @@ namespace {
   const Score Hanging             = S(48, 28);
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
+  
+  // Bonus for center control
+  const int RookCenter        = 1;
+  const int KnightCenter      = 3;
+  const int BishopCenter      = 3;
+  const int PawnCenter        = 5;
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -704,7 +710,34 @@ namespace {
 
     return make_score(0, value);
   }
+  
+  template<Color Us>
+  Score evaluate_center(const EvalInfo& ei) {
+    
+    // Define inner and outer center bitboards (LEFR)
+    const Bitboard Inner = 0x0000001818000000ULL;  
+    const Bitboard Outer = 0x00003C24243C0000ULL;
+  
+    int countInner, countOuter;
+    
+    countInner =  PawnCenter   * popcount<Max15>(ei.attackedBy[Us][PAWN]   & Inner);
+    countInner += BishopCenter * popcount<Max15>(ei.attackedBy[Us][BISHOP] & Inner);
+    countInner += KnightCenter * popcount<Max15>(ei.attackedBy[Us][KNIGHT] & Inner);
+    countInner += RookCenter   * popcount<Max15>(ei.attackedBy[Us][ROOK]   & Inner);
 
+    countOuter =  PawnCenter   * popcount<Max15>(ei.attackedBy[Us][PAWN]   & Outer);
+    countOuter += BishopCenter * popcount<Max15>(ei.attackedBy[Us][BISHOP] & Outer);
+    countOuter += KnightCenter * popcount<Max15>(ei.attackedBy[Us][KNIGHT] & Outer);
+    countOuter += RookCenter   * popcount<Max15>(ei.attackedBy[Us][ROOK]   & Outer);
+
+    // Divide inner by 4 for 4 squares, and multiply by 20 (weight)
+    countInner *= 5;
+    
+    // Divide outer by 12 for 12 squares, and multiply by 6 (weight)
+    countOuter /= 2;
+
+    return make_score((countInner + countOuter), 0);
+  }
 
   // evaluate_scale_factor() computes the scale factor for the winning side
   ScaleFactor evaluate_scale_factor(const Position& pos, const EvalInfo& ei, Score score) {
@@ -821,8 +854,12 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate space for both sides, only during opening
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
+  {
       score += (  evaluate_space<WHITE>(pos, ei)
                 - evaluate_space<BLACK>(pos, ei)) * Weights[Space];
+                
+      score += evaluate_center<WHITE>(ei) - evaluate_center<BLACK>(ei);
+  }
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
