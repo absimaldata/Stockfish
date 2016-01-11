@@ -731,10 +731,12 @@ namespace {
     countOuter += RookCenter   * popcount<Max15>(ei.attackedBy[Us][ROOK]   & Outer);
 
     // Divide inner by 4 for 4 squares, and multiply by 20 (weight)
-    countInner *= 5;
+    countInner /= 4;
+    countInner *= 20;
     
     // Divide outer by 12 for 12 squares, and multiply by 6 (weight)
-    countOuter /= 2;
+    countOuter /= 12;
+    countOuter *= 5;
 
     return make_score((countInner + countOuter), 0);
   }
