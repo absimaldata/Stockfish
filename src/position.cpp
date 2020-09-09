@@ -548,6 +548,42 @@ bool Position::legal(Move m) const {
         ||  aligned(from, to, square<KING>(us));
 }
 
+bool Position::king_danger() const {
+
+    Square ksq = square<KING>(sideToMove);
+    Bitboard kingRing, kingAttackers, legalKing;
+
+    kingRing = kingAttackers = legalKing = 0;
+
+    kingRing = attacks_bb<KING>(ksq);
+
+    while (kingRing)
+    {
+      Square to = pop_lsb(&kingRing);
+      Bitboard enemyAttackers = pieces(~sideToMove) & attackers_to(to);
+      if (!enemyAttackers)
+      {
+          if ((pieces(sideToMove) & to) == 0)
+              legalKing |= to;
+      }
+
+      while (enemyAttackers)
+      {
+        Square currentEnemy = pop_lsb(&enemyAttackers);
+        if ((currentEnemy & ~kingRing) || (more_than_one(attackers_to(to) & pieces(~sideToMove))))
+            kingAttackers |= currentEnemy;
+      }
+    }
+    int kingAttackersCount = popcount(kingAttackers);
+    int legalKingCount = popcount(legalKing);
+
+    if (   (kingAttackersCount > 1 &&  legalKingCount < 2)
+        || (kingAttackersCount > 0 && !legalKingCount))
+        return true;
+
+    return false;
+}
+
 
 /// Position::pseudo_legal() takes a random move and tests whether the move is
 /// pseudo legal. It is used to validate moves from TT that can be corrupted
