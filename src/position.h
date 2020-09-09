@@ -102,7 +102,7 @@ public:
   template<PieceType Pt> const Square* squares(Color c) const;
   template<PieceType Pt> Square square(Color c) const;
   bool is_on_semiopen_file(Color c, Square s) const;
-  bool Position::king_danger() const;
+  bool king_danger() const;
   
   // Castling
   CastlingRights castling_rights(Color c) const;
