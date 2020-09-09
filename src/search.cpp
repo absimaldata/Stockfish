@@ -815,7 +815,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8
+        &&  ((!pos.king_danger() && depth < 10) || depth < 4)
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -948,8 +948,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !ttMove
-		&& !pos.king_danger())
+        && !ttMove)
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
