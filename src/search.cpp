@@ -948,7 +948,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !ttMove
+        && (!ttMove || ((tte->bound() & BOUND_UPPER) && ttValue < alpha && ttValue <= ss->staticEval))
 		&& !pos.king_danger())
         depth -= 2;
 
