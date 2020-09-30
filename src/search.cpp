@@ -73,9 +73,9 @@ namespace {
   TUNE(rM, fTune, nA, nB, nC, nD, fTuneB);
   
   // Razor and futility margins
-  constexpr int RazorMargin = 510;
+  constexpr int RazorMargin = rM;
   Value futility_margin(Depth d, bool improving) {
-    return Value(223 * (d - improving));
+    return Value(fTune * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
