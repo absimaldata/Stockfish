@@ -73,7 +73,7 @@ namespace {
   TUNE(rM, fTune, nA, nB, nC, nD, fTuneB);
   
   // Razor and futility margins
-  constexpr int RazorMargin = rM;
+  int RazorMargin = rM;
   Value futility_margin(Depth d, bool improving) {
     return Value(fTune * (d - improving));
   }
