@@ -61,7 +61,17 @@ namespace {
 
   constexpr uint64_t TtHitAverageWindow     = 4096;
   constexpr uint64_t TtHitAverageResolution = 1024;
-
+  
+  int rM = 510;
+  int fTune = 223;
+  int nA = 982;
+  int nB = 85;
+  int nC = 256;
+  int nD = 192;
+  int fTuneB = 145;
+  
+  TUNE(rM, fTune, nA, nB, nC, nD, fTuneB);
+  
   // Razor and futility margins
   constexpr int RazorMargin = 510;
   Value futility_margin(Depth d, bool improving) {
@@ -829,7 +839,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (982 + 85 * depth) / 256 + std::min(int(eval - beta) / 192, 3);
+        Depth R = (nA + nB * depth) / nC + std::min(int(eval - beta) / nD, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1492,7 +1502,7 @@ moves_loop: // When in check, search starts from here
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = bestValue + 145;
+        futilityBase = bestValue + fTuneB;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,

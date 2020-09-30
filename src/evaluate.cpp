@@ -273,6 +273,10 @@ namespace {
   constexpr Score TrappedRook         = S( 55, 13);
   constexpr Score WeakQueenProtection = S( 14,  0);
   constexpr Score WeakQueen           = S( 56, 15);
+  int aN = 720;
+  int bN = 1024;
+  
+  TUNE(aN, SetRange(500, 2048), bN);
 
 
 #undef S
@@ -1024,7 +1028,7 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
-         return NNUE::evaluate(pos) * (720 + mat / 32) / 1024 + Tempo;
+         return NNUE::evaluate(pos) * (aN + mat / 32) / bN + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
